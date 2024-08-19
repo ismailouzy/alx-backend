@@ -57,8 +57,8 @@ class Server:
         data = []
         next_index = index
         for _ in range(page_size):
-            while next_index < dataset_size and
-            next_index not in indexed_dataset:
+            while (next_index < dataset_size
+                    and next_index not in indexed_dataset):
                 next_index += 1
             if next_index == dataset_size:
                 break
