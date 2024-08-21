@@ -1,40 +1,43 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pyhon3
 """
-lifo caching
+lifo cache
 """
-BaseCaching = __import__('base_caching').BaseCaching
+
+
+from threading import RLock
+from base_caching import BaseCaching
 
 
 class LIFOCache(BaseCaching):
     """
-    A caching system that inherits from BaseCaching and
-    implements the LIFO (Last-In-First-Out) eviction policy.
+    An implementation of LIFO (Last In First Out) Cache
+    Attributes:
+        __keys (list): Stores cache keys in order of entry using `.append`
+        __rlock (RLock): Lock accessed resources to prevent race condition
     """
     def __init__(self):
-        """
-        Initialize the cache.
+        """ Instantiation method, sets instance attributes
         """
         super().__init__()
-        self.cache_data = {}
+        self.__keys = []
+        self.__rlock = RLock()
 
     def put(self, key, item):
+        """ Add an item in the cache
         """
-        Add an item in the cache with a specific key.
-        """
-        if key is None or item is None:
-            return
-
-        if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-            last_key = next(reversed(self.cache_data))
-            print(f"DISCARD: {last_key}")
-            del self.cache_data[last_key]
-
-        self.cache_data[key] = item
+        if key is not None and item is not None:
+            with self.__rlock:
+                if key in self.__keys:
+                    self.__keys.remove(key)
+                self.__keys.append(key)
+                self.cache_data[key] = item
+                if len(self.__keys) > BaseCaching.MAX_ITEMS:
+                    key_to_discard = self.__keys.pop(len(self.__keys) - 2)
+                    del self.cache_data[key_to_discard]
+                    print(f"DISCARD: {key_to_discard}")
 
     def get(self, key):
+        """ Get an item by key
         """
-        Get an item from the cache by key.
-        """
-        if key is None or key not in self.cache_data:
-            return None
-        return self.cache_data[key]
+        with self.__rlock:
+            return self.cache_data.get(key, None)
