@@ -9,7 +9,9 @@ from flask_babel import Babel, _
 
 
 class Config:
-    """config"""
+    """
+    config class
+    """
     LANGUAGES = ["en", "fr"]
     BABEL_DEFAULT_LOCALE = "en"
     BABEL_DEFAULT_TIMEZONE = "UTC"
@@ -32,7 +34,9 @@ def get_locale() -> str:
 
 @app.route('/')
 def index() -> str:
-    """ render a html template"""
+    """
+    render a html template
+    """
     return render_template("3-index.html")
 
 
